@@ -1,36 +1,25 @@
 <?php
 require_once 'connex/db.php'; 
 
-
 $sql = "
-    SELECT 
-        c.id AS client_id, c.nom AS nom_client, c.email AS email_client,
-        v.marque AS marque_voiture, v.modele AS modele_voiture, v.annee AS annee_voiture, v.prix_location AS prix_location_voiture,
-        l.date_location AS date_location, l.date_retour AS date_retour
-    FROM
-        location l
-    LEFT JOIN
-        client c ON l.client_id = c.id
-    LEFT JOIN
-        voiture v ON l.id = v.id
-    ORDER BY
-        v.id DESC
+SELECT DISTINCT
+    c.id AS client_id, c.nom AS nom_client, c.email AS email_client,
+    l.date_location AS date_location, l.date_retour AS date_retour,
+    v.marque AS marque_voiture, v.modele AS modele_voiture, v.annee AS annee_voiture, v.prix_location AS prix_location_voiture
+FROM
+    client c
+LEFT JOIN
+    location l ON c.id = l.client_id
+LEFT JOIN
+    voiture v ON l.voiture_id = v.id
+ORDER BY 
+    l.id DESC
 ";
+
+
 
 $stmt = $pdo->query($sql);
 $informations = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Récupérer les informations du dernier client ajouté s'il existe
-$last_client = null;
-$sql_last_client = "SELECT * FROM client ORDER BY id DESC LIMIT 1";
-$stmt_last_client = $pdo->query($sql_last_client);
-$last_client = $stmt_last_client->fetch(PDO::FETCH_ASSOC);
-
-// Récupérer les informations de la dernière voiture ajoutée si elle existe
-$last_voiture = null;
-$sql_last_voiture = "SELECT * FROM voiture ORDER BY id DESC LIMIT 1";
-$stmt_last_voiture = $pdo->query($sql_last_voiture);
-$last_voiture = $stmt_last_voiture->fetch(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -38,11 +27,11 @@ $last_voiture = $stmt_last_voiture->fetch(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Informations sur les locations</title>
+    <title>Informations sur les locations, clients et voitures</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <h1>Informations sur les locations actuelles</h1>
+    <h1>Informations sur les locations, clients et voitures</h1>
     <div class="container">
         <table>
             <tr>
@@ -57,20 +46,18 @@ $last_voiture = $stmt_last_voiture->fetch(PDO::FETCH_ASSOC);
                 <th>Date de retour</th>
             </tr>
             <?php foreach ($informations as $info): ?>
-                <?php if ($last_client !== false && $last_voiture !== false): ?>
                 <tr>
-                <td><?= $last_client['id'] ?></td>
-                    <td><?= $last_client['nom'] ?></td>
-                    <td><?= $last_client['email'] ?></td>
-                    <td><?= $last_voiture['marque'] ?></td>
-                    <td><?= $last_voiture['modele'] ?></td>
-                    <td><?= $last_voiture['annee'] ?></td>
-                    <td><?= $last_voiture['prix_location'] ?></td>
+                    <td><?= $info['client_id'] ?></td>
+                    <td><?= $info['nom_client'] ?></td>
+                    <td><?= $info['email_client'] ?></td>
+                    <td><?= $info['marque_voiture'] ?></td>
+                    <td><?= $info['modele_voiture'] ?></td>
+                    <td><?= $info['annee_voiture'] ?></td>
+                    <td><?= $info['prix_location_voiture'] ?></td>
                     <td><?= $info['date_location'] ?></td>
                     <td><?= $info['date_retour'] ?></td>
                 </tr>
-                <?php endif; ?>
-            <?php endforeach; ?>        
+            <?php endforeach; ?>
         </table>
         <a href="client-create.php" class="btn">Ajouter un client</a>
         <a href="client-index.php" class="btn">Modifier un client</a>

@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($stmt->execute()) {
         // Rediriger vers la page d'accueil après l'ajout
-        header("Location: agence-index.php");
+        header("Location: location-create.php");
         exit();
     } else {
         echo "Erreur lors de l'ajout de la voiture.";
